@@ -20,7 +20,8 @@ cd cv-api
 generate a config.yml containing your resumes identifier
 
 ```
-echo "cvname: johnsmith" >> config.yml
+echo "cvname: johnsmith" > config.yml
+echo "email: johnsmith@example.com" >> config.yml
 ```
 
 create a bucket for deployment artifacts
@@ -34,6 +35,8 @@ deploy the application. collect the output (contains the api key and created end
 ```
 serverless deploy | tee deployment.log
 ```
+
+confirm email subscription to the SNS topic created by the deployment.
 
 write your resume content. create the following:
 

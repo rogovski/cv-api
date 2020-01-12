@@ -2,6 +2,7 @@ service: cv-api
 
 custom:
   cvbucket: com.${file(./config.yml):cvname}.cv
+  contacttopic: cv-api-contact-me
 
 provider:
   name: aws
@@ -10,9 +11,14 @@ provider:
     name: com.${file(./config.yml):cvname}.serverless.${self:provider.region}.deploys
   environment:
     BUCKET: ${self:custom.cvbucket}
+    CONTACTME: { Ref: ContactMeTopic }
   apiKeys:
     - defaultCvKey
   iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - 'sns:Publish' 
+      Resource: { Ref: ContactMeTopic }
     - Effect: 'Allow'
       Action:
         - 's3:ListBucket'
@@ -96,3 +102,13 @@ resources:
           BlockPublicPolicy : true
           IgnorePublicAcls : true
           RestrictPublicBuckets : true
+    ContactMeTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:custom.contacttopic}
+    ContactMeSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Endpoint: ${file(./config.yml):email}
+        Protocol: email
+        TopicArn: { Ref: ContactMeTopic }

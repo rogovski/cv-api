@@ -86,7 +86,19 @@ module.exports.contactGet = async event => {
  * POST /contact
  */
 module.exports.contactPost = async event => {
-  return notFound();
+  const sns = new AWS.SNS();
+  const params = {
+    TopicArn: process.env.CONTACTME,
+    Message: JSON.stringify(event, null, 4)
+  };
+
+  try {
+    await sns.publish(params).promise();
+  } catch (error) {
+    return internalError();
+  }
+
+  return ok('Thanks for getting in touch!');
 };
 
 /**
