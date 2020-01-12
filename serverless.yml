@@ -1,0 +1,98 @@
+service: cv-api
+
+custom:
+  cvbucket: com.${file(./config.yml):cvname}.cv
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  deploymentBucket:
+    name: com.${file(./config.yml):cvname}.serverless.${self:provider.region}.deploys
+  environment:
+    BUCKET: ${self:custom.cvbucket}
+  apiKeys:
+    - defaultCvKey
+  iamRoleStatements:
+    - Effect: 'Allow'
+      Action:
+        - 's3:ListBucket'
+      Resource:
+        Fn::Join:
+          - ''
+          - - 'arn:aws:s3:::'
+            - Ref: CvInfo
+    - Effect: 'Allow'
+      Action:
+        - 's3:GetObject'
+        - 's3:PutObject'
+      Resource:
+        Fn::Join:
+          - ''
+          - - 'arn:aws:s3:::'
+            - Ref: CvInfo
+            - '/*'
+
+
+functions:
+  aboutGet:
+    handler: handler.aboutGet
+    events:
+      - http:
+          path: about
+          method: get
+          private: true
+  contactGet:
+    handler: handler.contactGet
+    events:
+      - http:
+          path: contact
+          method: get
+          private: true
+  contactPost:
+    handler: handler.contactPost
+    events:
+      - http:
+          path: contact
+          method: post
+          private: true
+  employersGet:
+    handler: handler.employersGet
+    events:
+      - http:
+          path: employers
+          method: get
+          private: true
+      - http:
+          path: employers/{employer}
+          method: get
+          private: true
+          request:
+            parameters:
+              paths:
+                employer: true
+  educationGet:
+    handler: handler.educationGet
+    events:
+      - http:
+          path: education
+          method: get
+          private: true
+  referencesGet:
+    handler: handler.referencesGet
+    events:
+      - http:
+          path: references
+          method: get
+          private: true
+
+resources:
+  Resources:
+    CvInfo:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.cvbucket}
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls : true
+          BlockPublicPolicy : true
+          IgnorePublicAcls : true
+          RestrictPublicBuckets : true

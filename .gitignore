@@ -1,0 +1,17 @@
+# package directories
+node_modules
+jspm_packages
+
+# Serverless directories
+.serverless
+
+# config file
+config.yml
+
+# deployment log
+deployment.log
+
+# cv content
+cv/*.md
+cv/employers/*
+!cv/employers/.gitkeep
